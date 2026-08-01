@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Para Ti ❤️</title>
+<!-- Evita el zoom y ajusta la vista para celulares -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<style>
+  /* ============================================================
+     RESET Y BASE
+  ============================================================ */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(180deg, #ffe4ec 0%, #ffd1dc 40%, #ffc0cb 100%);
+    font-family: 'Brush Script MT', 'Segoe Script', 'Lucida Handwriting', cursive;
+    color: #000; /* Texto siempre en negro, como se pidió */
+    position: fixed;
+    inset: 0;
+  }
+
+  #app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============================================================
+     PÉTALOS CAYENDO (fondo romántico, sin corazones al inicio)
+  ============================================================ */
+  #petals-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .petal {
+    position: absolute;
+    top: -40px;
+    width: 16px;
+    height: 20px;
+    background: linear-gradient(135deg, #ffb3c6, #ff8fab);
+    border-radius: 50% 0 50% 50%;
+    opacity: 0.85;
+    animation-name: fall, sway;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-10vh) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(360deg); }
+  }
+
+  @keyframes sway {
+    0%, 100% { margin-left: 0px; }
+    50% { margin-left: 30px; }
+  }
+
+  /* ============================================================
+     PANTALLAS GENERALES
+  ============================================================ */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6vw;
+    z-index: 5;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  /* ============================================================
+     PANTALLA 1: PORTADA / DECLARACIÓN INICIAL
+  ============================================================ */
+  #screen-cover h1 {
+    font-size: 9vw;
+    line-height: 1.3;
+    margin-bottom: 4vh;
+    max-width: 90vw;
+    text-shadow: 0px 2px 6px rgba(255,255,255,0.6);
+  }
+
+  /* ============================================================
+     BOTONES GRANDES Y TÁCTILES
+  ============================================================ */
+  .btn {
+    font-family: inherit;
+    font-size: 6vw;
+    padding: 4vw 8vw;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #ff6f91, #ff9a9e);
+    color: #000;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.15s ease;
+    min-width: 44vw;
+    min-height: 60px;
+  }
+
+  .btn:active {
+    transform: scale(0.94);
+  }
+
+  /* ============================================================
+     PANTALLA 2: LA CARTA
+  ============================================================ */
+  #screen-letter {
+    perspective: 1200px;
+  }
+
+  .letter-paper {
+    background: #fffaf3;
+    background-image: linear-gradient(180deg, rgba(255,182,193,0.15), rgba(255,255,255,0));
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    width: 88vw;
+    max-width: 480px;
+    max-height: 82vh;
+    padding: 6vw 6vw 4vh 6vw;
+    overflow-y: auto;
+    transform: scale(0.2) rotateX(40deg);
+    opacity: 0;
+    border: 2px solid #ffb6c1;
+  }
+
+  .letter-paper.open {
+    animation: openLetter 0.9s ease forwards;
+  }
+
+  @keyframes openLetter {
+    0% { transform: scale(0.2) rotateX(40deg); opacity: 0; }
+    60% { transform: scale(1.05) rotateX(0deg); opacity: 1; }
+    100% { transform: scale(1) rotateX(0deg); opacity: 1; }
+  }
+
+  .letter-paper p {
+    font-size: 5.5vw;
+    line-height: 1.6;
+    margin-bottom: 3vh;
+  }
+
+  .letter-hearts {
+    font-size: 6vw;
+    margin-bottom: 3vh;
+  }
+
+  /* ============================================================
+     PANTALLA 3: LA PREGUNTA
+  ============================================================ */
+  #screen-proposal h2 {
+    font-size: 8vw;
+    margin-bottom: 6vh;
+    max-width: 90vw;
+  }
+
+  .proposal-buttons {
+    position: relative;
+    width: 100%;
+    height: 40vh;
+  }
+
+  #btn-si {
+    position: relative;
+    z-index: 3;
+  }
+
+  #btn-no {
+    position: absolute;
+    z-index: 4;
+    transition: all 0.25s ease;
+  }
+
+  /* ============================================================
+     PANTALLA 4: CELEBRACIÓN
+  ============================================================ */
+  #screen-celebration h1 {
+    font-size: 12vw;
+    text-shadow: 0px 3px 8px rgba(255,255,255,0.8);
+    animation: pulseText 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulseText {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+
+  #heart-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    overflow: hidden;
+  }
+
+  .falling-heart {
+    position: absolute;
+    top: -40px;
+    font-size: 8vw;
+    animation: heartFall linear forwards;
+  }
+
+  @keyframes heartFall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.9; }
+  }
+
+  /* ============================================================
+     BOTÓN DE MÚSICA (discreto)
+  ============================================================ */
+  #music-toggle {
+    position: fixed;
+    top: 4vw;
+    right: 4vw;
+    width: 12vw;
+    height: 12vw;
+    max-width: 55px;
+    max-height: 55px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    border: 2px solid #ff8fab;
+    font-size: 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    cursor: pointer;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Capa de pétalos cayendo (fondo romántico) -->
+  <div id="petals-container"></div>
+
+  <!-- Botón discreto de música -->
+  <button id="music-toggle">🎵</button>
+
+  <!-- ============================================================
+       PANTALLA 1: Aparece directamente al abrir la página
+  ============================================================ -->
+  <div id="screen-cover" class="screen active">
+    <!-- ✏️ CAMBIA AQUÍ el texto de la declaración inicial -->
+    <h1>Tengo algo importante<br>que decirte...</h1>
+    <button class="btn" id="btn-leelo">Léelo</button>
+  </div>
+
+  <!-- ============================================================
+       PANTALLA 2: La carta (se abre con animación al tocar "Léelo")
+  ============================================================ -->
+  <div id="screen-letter" class="screen">
+    <div class="letter-paper" id="letter-paper">
+      <div class="letter-hearts">💌 💕 💌</div>
+
+      <!-- ✏️ CAMBIA AQUÍ el texto completo de la carta -->
+      <p>Querida tú:</p>
+      <p>Desde que llegaste a mi vida, todo se volvió más bonito.
+      Tu sonrisa, tu forma de ser y cada pequeño detalle tuyo
+      se quedaron guardados en mi corazón.</p>
+      <p>Quiero que sepas que lo que siento por ti es real,
+      y que cada día quiero conocerte más y estar a tu lado. 💗</p>
+      <p>Con todo mi cariño,<br><!-- ✏️ CAMBIA AQUÍ tu nombre --> Tu persona especial</p>
+
+      <button class="btn" id="btn-continuar" style="font-size:5vw; padding:3vw 6vw;">Continuar 💕</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PANTALLA 3: La pregunta
+  ============================================================ -->
+  <div id="screen-proposal" class="screen">
+    <!-- ✏️ CAMBIA AQUÍ el texto de la pregunta si lo deseas -->
+    <h2>¿Quieres ser mi novia?</h2>
+    <div class="proposal-buttons">
+      <button class="btn" id="btn-si" style="position:absolute; left:50%; top:20%; transform:translateX(-50%);">❤️ Sí</button>
+      <button class="btn" id="btn-no" style="left:50%; top:55%; transform:translateX(-50%);">❌ No</button>
+    </div>
+    <!-- ✏️ CAMBIA AQUÍ el texto entre paréntesis si lo deseas -->
+    <p id="nota-pregunta" style="font-size:4.2vw; margin-top:4vh; max-width:88vw;">(mientras te lo pido bien, en persona, mi vida, ya me puedes reclamar lo que quieras)</p>
+  </div>
+
+  <!-- ============================================================
+       PANTALLA 4: Celebración final
+  ============================================================ -->
+  <div id="screen-celebration" class="screen">
+    <h1>Te amo ❤️ (Jeje)</h1>
+  </div>
+
+  <!-- Capa de lluvia de corazones (solo aparece en la celebración) -->
+  <div id="heart-rain"></div>
+
+  <!-- Música de fondo -->
+  <audio id="bg-music" src="entombed.mp3" loop preload="auto"></audio>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ==========================================================
+     REFERENCIAS
+  ========================================================== */
+  var screenCover = document.getElementById('screen-cover');
+  var screenLetter = document.getElementById('screen-letter');
+  var screenProposal = document.getElementById('screen-proposal');
+  var screenCelebration = document.getElementById('screen-celebration');
+  var letterPaper = document.getElementById('letter-paper');
+
+  var btnLeelo = document.getElementById('btn-leelo');
+  var btnContinuar = document.getElementById('btn-continuar');
+  var btnSi = document.getElementById('btn-si');
+  var btnNo = document.getElementById('btn-no');
+  var musicToggle = document.getElementById('music-toggle');
+  var bgMusic = document.getElementById('bg-music');
+  var heartRain = document.getElementById('heart-rain');
+  var petalsContainer = document.getElementById('petals-container');
+
+  function showScreen(screen) {
+    [screenCover, screenLetter, screenProposal, screenCelebration].forEach(function (s) {
+      s.classList.remove('active');
+    });
+    screen.classList.add('active');
+  }
+
+  /* ==========================================================
+     PÉTALOS CAYENDO DE FONDO
+  ========================================================== */
+  function createPetals(count) {
+    for (var i = 0; i < count; i++) {
+      var petal = document.createElement('div');
+      petal.className = 'petal';
+      var left = Math.random() * 100;
+      var duration = 6 + Math.random() * 6;
+      var swayDuration = 2 + Math.random() * 2;
+      var delay = Math.random() * 8;
+      var size = 10 + Math.random() * 10;
+
+      petal.style.left = left + 'vw';
+      petal.style.width = size + 'px';
+      petal.style.height = (size * 1.25) + 'px';
+      petal.style.animationDuration = duration + 's, ' + swayDuration + 's';
+      petal.style.animationDelay = delay + 's, ' + (delay * 0.5) + 's';
+      petalsContainer.appendChild(petal);
+    }
+  }
+  createPetals(22);
+
+  /* ==========================================================
+     MÚSICA: inicia con el primer toque del usuario
+  ========================================================== */
+  var musicStarted = false;
+  var musicEnabled = true;
+
+  function startMusicOnce() {
+    if (musicStarted) return;
+    musicStarted = true;
+    bgMusic.volume = 0.8;
+    bgMusic.play().catch(function () {
+      // Si el navegador bloquea el autoplay, se intentará de nuevo con el próximo toque
+      musicStarted = false;
+    });
+  }
+
+  document.addEventListener('touchstart', startMusicOnce, { once: false });
+  document.addEventListener('click', startMusicOnce, { once: false });
+
+  musicToggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    musicEnabled = !musicEnabled;
+    if (musicEnabled) {
+      musicToggle.textContent = '🎵';
+      bgMusic.play().catch(function () {});
+    } else {
+      musicToggle.textContent = '🔇';
+      bgMusic.pause();
+    }
+  });
+
+  /* ==========================================================
+     FLUJO: PORTADA -> CARTA
+  ========================================================== */
+  btnLeelo.addEventListener('click', function () {
+    showScreen(screenLetter);
+    // Pequeño retraso para forzar el reinicio de la animación
+    letterPaper.classList.remove('open');
+    void letterPaper.offsetWidth; // reflow
+    letterPaper.classList.add('open');
+  });
+
+  /* ==========================================================
+     FLUJO: CARTA -> PREGUNTA
+  ========================================================== */
+  btnContinuar.addEventListener('click', function () {
+    showScreen(screenProposal);
+  });
+
+  /* ==========================================================
+     BOTÓN "NO": encoge, se mueve aleatoriamente y agranda el "Sí"
+  ========================================================== */
+  var noScale = 1;
+  var siScale = 1;
+  var minNoScale = 0.35;
+  var maxSiScale = 2.2;
+
+  function moveNoButtonRandomly() {
+    var container = btnNo.parentElement.getBoundingClientRect();
+    var btnRect = btnNo.getBoundingClientRect();
+
+    var maxLeft = Math.max(container.width - btnRect.width, 10);
+    var maxTop = Math.max(container.height - btnRect.height, 10);
+
+    var newLeft = Math.random() * maxLeft;
+    var newTop = Math.random() * maxTop;
+
+    btnNo.style.left = newLeft + 'px';
+    btnNo.style.top = newTop + 'px';
+    btnNo.style.transform = 'translate(0,0)';
+  }
+
+  function handleNoInteraction(e) {
+    e.preventDefault();
+
+    if (noScale > minNoScale) {
+      noScale -= 0.12;
+      if (noScale < minNoScale) noScale = minNoScale;
+      btnNo.style.fontSize = (6 * noScale) + 'vw';
+      btnNo.style.padding = (4 * noScale) + 'vw ' + (8 * noScale) + 'vw';
+    }
+
+    if (siScale < maxSiScale) {
+      siScale += 0.15;
+      if (siScale > maxSiScale) siScale = maxSiScale;
+      btnSi.style.fontSize = (6 * siScale) + 'vw';
+      btnSi.style.padding = (4 * siScale) + 'vw ' + (8 * siScale) + 'vw';
+    }
+
+    moveNoButtonRandomly();
+  }
+
+  // Soporta touch y click sin duplicar el efecto
+  btnNo.addEventListener('touchstart', handleNoInteraction, { passive: false });
+  btnNo.addEventListener('click', function (e) {
+    // Evita doble ejecución en dispositivos que disparan touch + click
+    if (e.pointerType === undefined && !('ontouchstart' in window)) {
+      handleNoInteraction(e);
+    }
+  });
+
+  /* ==========================================================
+     BOTÓN "SÍ": celebración final
+  ========================================================== */
+  function goToCelebration(e) {
+    if (e) e.preventDefault();
+    showScreen(screenCelebration);
+    launchHeartRain();
+  }
+
+  btnSi.addEventListener('click', goToCelebration);
+  btnSi.addEventListener('touchend', function (e) {
+    e.preventDefault();
+    goToCelebration(e);
+  }, { passive: false });
+
+  /* ==========================================================
+     LLUVIA DE CORAZONES (celebración)
+  ========================================================== */
+  var heartRainInterval = null;
+
+  function launchHeartRain() {
+    if (heartRainInterval) return;
+    heartRainInterval = setInterval(function () {
+      var heart = document.createElement('div');
+      heart.className = 'falling-heart';
+      heart.textContent = ['❤️', '💕', '💖', '💗'][Math.floor(Math.random() * 4)];
+      heart.style.left = (Math.random() * 100) + 'vw';
+      var duration = 3 + Math.random() * 3;
+      heart.style.animationDuration = duration + 's';
+      heartRain.appendChild(heart);
+
+      setTimeout(function () {
+        heart.remove();
+      }, duration * 1000 + 200);
+    }, 200);
+  }
+
+})();
+</script>
+
+</body>
+</html>
